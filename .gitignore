@@ -1,3 +1,6 @@
 venv/
 input/
 .idea/
+.env
+temp/
+__pycache__/

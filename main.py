@@ -1,7 +1,7 @@
 import logging
 from decouple import config
 from pymongo import MongoClient
-
+from banks.sber import get_sber_transactions
 from banks.sovcom import get_sovcom_transactions
 from banks.tinkoff import get_tinkoff_transactions
 

@@ -1,9 +1,10 @@
 import glob
 import PyPDF2
+import pytz
 import re
 from datetime import datetime
 
-PATH = '../input/tinkoff'
+PATH = 'input/tinkoff'
 FILENAMES = glob.glob(PATH + '/*.pdf')
 
 
@@ -27,10 +28,10 @@ def get_tinkoff_transactions():
                         card_sum = float(card_sum.replace(' ', '').replace(',', '.'))
                         transactions.append({
                             'bank': 'Tinkoff',
-                            'trans_datetime': datetime.strptime(row[trans_datetime], '%d.%m.%Y %H:%M'),
-                            'transfer_datetime': datetime.strptime(row[transfer_date], '%d.%m.%Y'),
+                            'trans_datetime': datetime.strptime(row[trans_datetime], '%d.%m.%Y %H:%M').astimezone(pytz.UTC),
+                            'transfer_datetime': datetime.strptime(row[transfer_date], '%d.%m.%Y').astimezone(pytz.UTC),
                             'debit': trans_sum if trans_sum > 0 else 0,
-                            'credit': trans_sum if trans_sum < 0 else 0,
+                            'credit': -trans_sum if trans_sum < 0 else 0,
                             'card_sum': card_sum,
                             'text': text
                         })

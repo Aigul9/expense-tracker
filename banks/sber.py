@@ -1,11 +1,12 @@
-from datetime import datetime
-
 import fitz
 import glob
+import pytz
 import re
+from datetime import datetime
 from unidecode import unidecode
 
-PATH = '../input/sber'
+
+PATH = 'input/sber'
 FILENAMES = glob.glob(PATH + '/*.pdf')
 
 
@@ -29,20 +30,22 @@ def get_sber_transactions():
                     category = rows[i + 4]
                     text = rows[i + 5]
                     try:
-                        trans_sum = float(unidecode(rows[i + 6]).replace(' ', '').replace(',', '.'))
+                        trans_sum_str = unidecode(rows[i + 6]).replace(' ', '').replace(',', '.')
+                        trans_sum = float(trans_sum_str)
                     except ValueError:
                         text += rows[i + 6]
-                        trans_sum = float(unidecode(rows[i + 7]).replace(' ', '').replace(',', '.'))
+                        trans_sum_str = unidecode(rows[i + 7]).replace(' ', '').replace(',', '.')
+                        trans_sum = float(trans_sum_str)
                         i += 1
                     transactions.append({
                         'bank': 'Sber',
-                        'trans_datetime': datetime.strptime(' '.join((trans_date, trans_time)), '%d.%m.%Y %H:%M'),
-                        'transfer_datetime': datetime.strptime(transfer_date, '%d.%m.%Y'),
+                        'trans_datetime': datetime.strptime(' '.join((trans_date, trans_time)), '%d.%m.%Y %H:%M').astimezone(pytz.UTC),
+                        'transfer_datetime': datetime.strptime(transfer_date, '%d.%m.%Y').astimezone(pytz.UTC),
                         'auth_code': auth_code,
                         'category': category,
                         'text': text,
-                        'debit': trans_sum if trans_sum > 0 else 0,
-                        'credit': trans_sum if trans_sum < 0 else 0
+                        'debit': trans_sum if trans_sum_str[0] == '+' else 0,
+                        'credit': trans_sum if trans_sum_str[0] != '+' else 0
                     })
                     i += 7
                 else:

@@ -35,6 +35,7 @@ def get_tinkoff_transactions():
                             'card_sum': card_sum,
                             'text': text
                         })
+
     return transactions
 
 

@@ -1,9 +1,10 @@
 import logging
 from decouple import config
 from pymongo import MongoClient
-from banks.sber import get_sber_transactions
-from banks.sovcom import get_sovcom_transactions
-from banks.tinkoff import get_tinkoff_transactions
+from sber import get_sber_transactions
+from sovcom import get_sovcom_transactions
+from tinkoff import get_tinkoff_transactions
+from vtb import get_vtb_transactions
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -29,5 +30,7 @@ sovcom_transactions = get_sovcom_transactions()
 upsert(sovcom_transactions)
 tinkoff_transactions = get_tinkoff_transactions()
 upsert(tinkoff_transactions)
+# vtb_transactions = get_vtb_transactions()
+# upsert(vtb_transactions)
 
 client.close()

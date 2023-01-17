@@ -26,6 +26,7 @@ def get_sovcom_transactions():
                     'credit': float(tds[4].find('p').get_text().replace(',', '')),
                     'text': tds[5].find('p').get_text()
                 })
+
     return transactions
 
 

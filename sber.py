@@ -40,9 +40,9 @@ def get_sber_transactions():
                         'transfer_datetime': datetime.strptime(transfer_date, '%d.%m.%Y').astimezone(pytz.UTC),
                         'auth_code': auth_code,
                         'category': category,
-                        'text': text,
                         'debit': trans_sum if trans_sum_str[0] == '+' else 0,
-                        'credit': trans_sum if trans_sum_str[0] != '+' else 0
+                        'credit': trans_sum if trans_sum_str[0] != '+' else 0,
+                        'text': text
                     })
                     i += num_fields
                 else:

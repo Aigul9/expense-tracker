@@ -37,6 +37,7 @@ def get_vtb_transactions():
                     next_col += 1
                 transaction = {
                     'bank': 'VTB',
+                    'trans_datetime': None,
                     'transfer_datetime': datetime.strptime(transfer_date, '%d.%m.%Y').astimezone(pytz.UTC),
                     'card_sum': float(card_sum.replace(' RUB', '')),
                     'debit': float(debit),

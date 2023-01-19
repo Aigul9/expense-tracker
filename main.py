@@ -24,12 +24,13 @@ def upsert(transactions):
         coll.update_one(trans, {'$setOnInsert': trans}, upsert=True)
 
 
-sber_transactions = get_sber_transactions()
-upsert(sber_transactions)
+# sber_transactions = get_sber_transactions()
+# upsert(sber_transactions)
+coll.delete_many({'bank': 'Sovcom'})
 sovcom_transactions = get_sovcom_transactions()
 upsert(sovcom_transactions)
-tinkoff_transactions = get_tinkoff_transactions()
-upsert(tinkoff_transactions)
+# tinkoff_transactions = get_tinkoff_transactions()
+# upsert(tinkoff_transactions)
 # vtb_transactions = get_vtb_transactions()
 # upsert(vtb_transactions)
 

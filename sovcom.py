@@ -22,8 +22,8 @@ def get_sovcom_transactions():
                     'trans_datetime': datetime.strptime(tds[0].find('p').get_text(), '%d.%m.%y').astimezone(pytz.UTC),
                     'account': tds[1].find('p').get_text(),
                     'income_balance': float(tds[2].find('p').get_text().replace(',', '')),
-                    'debit': float(tds[3].find('p').get_text().replace(',', '')),
-                    'credit': float(tds[4].find('p').get_text().replace(',', '')),
+                    'debit': float(tds[4].find('p').get_text().replace(',', '')),
+                    'credit': float(tds[3].find('p').get_text().replace(',', '')),
                     'text': tds[5].find('p').get_text()
                 })
 

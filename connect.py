@@ -1,5 +1,5 @@
 from decouple import config
-from sqlalchemy import create_engine, Float, Integer, Identity
+from sqlalchemy import create_engine, Float, Integer
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, DateTime
@@ -61,8 +61,8 @@ class SovcomTransaction(Base):
         self.text = text
 
 
-class TinkoffTransaction(Base):
-    __tablename__ = 'tinkoff'
+class TinkoffTransactionMobile(Base):
+    __tablename__ = 'tinkoff_mobile'
     trans_id = Column(Integer, primary_key=True)
     bank = Column(String)
     trans_datetime = Column(DateTime)
@@ -80,6 +80,49 @@ class TinkoffTransaction(Base):
         self.credit = credit
         self.card_sum = card_sum
         self.text = text
+
+
+class TinkoffTransaction(Base):
+    __tablename__ = 'tinkoff'
+    trans_id = Column(Integer, primary_key=True)
+    bank = Column(String)
+    trans_datetime = Column(DateTime)
+    transfer_datetime = Column(DateTime)
+    pan = Column(String)
+    status = Column(String)
+    debit = Column(Float)
+    credit = Column(Float)
+    trans_currency = Column(String)
+    pay_sum = Column(Float)
+    pay_currency = Column(String)
+    cashback = Column(String)
+    category = Column(String)
+    mcc = Column(String)
+    text = Column(String)
+    bonus = Column(Float)
+    rounding = Column(Float)
+    sum_with_rounding = Column(Float)
+
+    def __init__(self, bank, trans_datetime, transfer_datetime, pan, status, debit, credit,
+                 trans_currency, pay_sum, pay_currency, cashback, category, mcc, text,
+                 bonus, rounding, sum_with_rounding):
+        self.bank = bank
+        self.trans_datetime = trans_datetime
+        self.transfer_datetime = transfer_datetime
+        self.pan = pan
+        self.status = status
+        self.debit = debit
+        self.credit = credit
+        self.trans_currency = trans_currency
+        self.pay_sum = pay_sum
+        self.pay_currency = pay_currency
+        self.cashback = cashback
+        self.category = category
+        self.mcc = mcc
+        self.text = text
+        self.bonus = bonus
+        self.rounding = rounding
+        self.sum_with_rounding = sum_with_rounding
 
 
 class VTBTransaction(Base):

@@ -17,7 +17,7 @@ def get_sovcom_transactions():
             trs = table.find_all('tr')[1:]
             for tr in trs:
                 tds = tr.find_all('td')
-                transactions.append({
+                transaction = {
                     'bank': 'Sovcom',
                     'trans_datetime': datetime.strptime(tds[0].find('p').get_text(), '%d.%m.%y').astimezone(pytz.UTC),
                     'account': tds[1].find('p').get_text(),
@@ -25,7 +25,9 @@ def get_sovcom_transactions():
                     'debit': float(tds[4].find('p').get_text().replace(',', '')),
                     'credit': float(tds[3].find('p').get_text().replace(',', '')),
                     'text': tds[5].find('p').get_text()
-                })
+                }
+                if transaction not in transactions:
+                    transactions.append(transaction)
 
     return transactions
 

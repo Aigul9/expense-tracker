@@ -47,7 +47,8 @@ def get_vtb_transactions():
                 if trans_date is not None:
                     transaction['trans_datetime'] = datetime.strptime(' '.join((trans_date, trans_time)),
                                                                       '%d.%m.%Y %H:%M:%S').astimezone(pytz.UTC)
-                transactions.append(transaction)
+                if transaction not in transactions:
+                    transactions.append(transaction)
                 i = next_col
 
     return transactions

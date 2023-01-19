@@ -33,7 +33,7 @@ def get_sber_transactions():
                         trans_sum_str = unidecode(rows[i + num_fields]).replace(' ', '').replace(',', '.')
                         trans_sum = float(trans_sum_str)
                         i += 1
-                    transactions.append({
+                    transaction = {
                         'bank': 'Sber',
                         'trans_datetime': datetime.strptime(' '.join((trans_date, trans_time)),
                                                             '%d.%m.%Y %H:%M').astimezone(pytz.UTC),
@@ -43,7 +43,9 @@ def get_sber_transactions():
                         'debit': trans_sum if trans_sum_str[0] == '+' else 0,
                         'credit': trans_sum if trans_sum_str[0] != '+' else 0,
                         'text': text
-                    })
+                    }
+                    if transaction not in transactions:
+                        transactions.append(transaction)
                     i += num_fields
                 else:
                     i += 1

@@ -3,7 +3,7 @@ from decouple import config
 from pymongo import MongoClient
 from sber import get_sber_transactions
 from sovcom import get_sovcom_transactions
-from tinkoff import get_tinkoff_transactions
+from tinkoff import get_tinkoff_transactions_txt
 from vtb import get_vtb_transactions
 
 logging.basicConfig(
@@ -12,7 +12,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-client = MongoClient(config('ATLAS_URI'))
+client = MongoClient(config('URI'))
 db = client[config('DB_NAME')]
 coll = db[config('COLL_NAME')]
 logger.info('Connected')
@@ -29,7 +29,7 @@ upsert(sber_transactions)
 # coll.delete_many({'bank': 'Sovcom'})
 sovcom_transactions = get_sovcom_transactions()
 upsert(sovcom_transactions)
-tinkoff_transactions = get_tinkoff_transactions()
+tinkoff_transactions = get_tinkoff_transactions_txt()
 upsert(tinkoff_transactions)
 vtb_transactions = get_vtb_transactions()
 upsert(vtb_transactions)

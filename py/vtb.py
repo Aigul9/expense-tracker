@@ -9,6 +9,7 @@ FILENAMES = glob.glob(PATH + '/*.pdf')
 
 def get_transactions():
     transactions = []
+
     for filename in FILENAMES:
         file = fitz.open(filename)
         pat_date = re.compile(r'(\d{2}.\d{2}.\d{4})')
@@ -54,8 +55,7 @@ def get_transactions():
                     transaction['trans_datetime'] = datetime.strptime(' '.join((trans_date, trans_time)),
                                                                       '%d.%m.%Y %H:%M:%S')
 
-                if transaction not in transactions:
-                    transactions.append(transaction)
+                transactions.append(transaction)
 
                 i = next_col
 

@@ -9,7 +9,9 @@ FILENAMES = glob.glob(PATH + '/*.html')
 
 def get_transactions():
     transactions = []
+
     for filename in FILENAMES:
+
         with open(filename, 'r', encoding='UTF-8') as file:
             soup = BeautifulSoup(file, 'html.parser')
             table = soup.find_all('table')[1]
@@ -27,8 +29,7 @@ def get_transactions():
                     'text': tds[5].find('p').get_text()
                 }
 
-                if transaction not in transactions:
-                    transactions.append(transaction)
+                transactions.append(transaction)
 
     return transactions
 

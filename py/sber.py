@@ -59,8 +59,7 @@ def get_transactions():
                         'text': text if is_debit_card else category
                     }
 
-                    if transaction not in transactions:
-                        transactions.append(transaction)
+                    transactions.append(transaction)
                     i += num_fields
 
                 else:

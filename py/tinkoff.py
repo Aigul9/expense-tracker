@@ -12,6 +12,7 @@ def get_transactions():
 
     for filename in filenames:
         df = pd.read_excel(filename, sheet_name='Отчет по операциям', header=0)
+
         for _, row in df.iterrows():
             (
                 trans_datetime, transfer_datetime, pan, status,
@@ -20,6 +21,7 @@ def get_transactions():
             ) = row
             trans_sum = float(trans_sum)
             pay_sum = float(pay_sum)
+
             transaction = {
                 'bank': 'Tinkoff',
                 'trans_datetime': datetime.strptime(trans_datetime, '%d.%m.%Y %H:%M:%S'),
@@ -40,8 +42,9 @@ def get_transactions():
                 'rounding': float(rounding),
                 'sum_with_rounding': float(sum_with_rounding)
             }
-            if transaction not in transactions:
-                transactions.append(transaction)
+
+            transactions.append(transaction)
+
     return transactions
 
 

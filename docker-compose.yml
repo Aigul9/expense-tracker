@@ -1,0 +1,64 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    hostname: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - ${POSTGRES_PORT}:5432
+    volumes:
+      - postgresvol:/var/lib/docker/volumes/postgresvol/_data
+    networks:
+      - metapost
+
+  pgadmin:
+    image: dpage/pgadmin4:7
+    container_name: pgadmin
+    hostname: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - ${PGADMIN_PORT}:80
+    volumes:
+      - pgadminvol:/var/lib/docker/volumes/pgadminvol/_data
+    networks:
+      - metapost
+
+  metabase:
+    image: metabase/metabase:v0.48.1
+    container_name: metabase
+    hostname: metabase
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_HOST: ${POSTGRES_HOST}
+      MB_DB_PORT: ${POSTGRES_PORT}
+      MB_DB_DBNAME: ${POSTGRES_DB}
+      MB_DB_USER: ${POSTGRES_USER}
+      MB_DB_PASS: ${POSTGRES_PASSWORD}
+    ports:
+      - ${METABASE_PORT}:3000
+    volumes:
+      - metabasevol:/var/lib/docker/volumes/metabasevol/_data
+    networks:
+      - metapost
+    healthcheck:
+      test: curl --fail -I http://localhost:3000/api/health || exit 1
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgresvol:
+  pgadminvol:
+  metabasevol:
+
+networks:
+  metapost:
+    driver: bridge

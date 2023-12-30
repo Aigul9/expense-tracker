@@ -1,6 +1,6 @@
 venv/
-input/
+loaded/
 .idea/
-.env
+*.env
 temp/
 __pycache__/

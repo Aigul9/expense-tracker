@@ -1,8 +1,9 @@
 from datetime import date
 from decouple import config
-from sqlalchemy import create_engine, Float, Integer, Date, UniqueConstraint
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, Date, Float, Integer, MetaData, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.schema import CreateSchema
 from sqlalchemy import Column, String, DateTime
 
 
@@ -11,11 +12,17 @@ db_user = config('POSTGRES_USER')
 db_pass = config('POSTGRES_PASSWORD')
 db_host = config('POSTGRES_HOST')
 db_port = config('POSTGRES_PORT')
+db_schema = config('POSTGRES_SCHEMA')
 
 db_string = 'postgresql://{}:{}@{}:{}/{}'.format(db_user, db_pass, db_host, db_port, db_name)
-db = create_engine(db_string)
-Session = sessionmaker(bind=db)
-Base = declarative_base()
+engine = create_engine(db_string)
+Session = sessionmaker(bind=engine)
+
+if not engine.dialect.has_schema(engine, db_schema):
+    engine.execute(CreateSchema(db_schema))
+
+metadata_obj = MetaData(schema=db_schema)
+Base = declarative_base(metadata=metadata_obj)
 
 
 class SberTransaction(Base):
@@ -32,14 +39,12 @@ class SberTransaction(Base):
     load_date = Column(Date, default=date.today())
     __table_args__ = (
         UniqueConstraint(
-            "bank",
-            "trans_datetime",
-            "transfer_datetime",
-            "auth_code",
-            "category",
-            "debit",
-            "credit",
-            "text"
+            'bank',
+            'trans_datetime',
+            'auth_code',
+            'category',
+            'debit',
+            'credit'
         ),
     )
 
@@ -67,13 +72,12 @@ class SovcomTransaction(Base):
     load_date = Column(Date, default=date.today())
     __table_args__ = (
         UniqueConstraint(
-            "bank",
-            "trans_datetime",
-            "account",
-            "income_balance",
-            "debit",
-            "credit",
-            "text"
+            'bank',
+            'trans_datetime',
+            'account',
+            'income_balance',
+            'debit',
+            'credit'
         ),
     )
 
@@ -84,27 +88,6 @@ class SovcomTransaction(Base):
         self.income_balance = income_balance
         self.debit = debit
         self.credit = credit
-        self.text = text
-
-
-class TinkoffTransactionMobile(Base):
-    __tablename__ = 'tinkoff_mobile'
-    trans_id = Column(Integer, primary_key=True)
-    bank = Column(String)
-    trans_datetime = Column(DateTime)
-    transfer_datetime = Column(DateTime)
-    debit = Column(Float)
-    credit = Column(Float)
-    card_sum = Column(Float)
-    text = Column(String)
-
-    def __init__(self, bank, trans_datetime, transfer_datetime, debit, credit, card_sum, text):
-        self.bank = bank
-        self.trans_datetime = trans_datetime
-        self.transfer_datetime = transfer_datetime
-        self.debit = debit
-        self.credit = credit
-        self.card_sum = card_sum
         self.text = text
 
 
@@ -131,23 +114,17 @@ class TinkoffTransaction(Base):
     load_date = Column(Date, default=date.today())
     __table_args__ = (
         UniqueConstraint(
-            "bank",
-            "trans_datetime",
-            "transfer_datetime",
-            "pan",
-            "status",
-            "debit",
-            "credit",
-            "trans_currency",
-            "pay_sum",
-            "pay_currency",
-            "cashback",
-            "category",
-            "mcc",
-            "text",
-            "bonus",
-            "rounding",
-            "sum_with_rounding"
+            'bank',
+            'trans_datetime',
+            'pan',
+            'status',
+            'debit',
+            'credit',
+            'trans_currency',
+            'pay_sum',
+            'pay_currency',
+            'category',
+            'mcc'
         ),
     )
 
@@ -183,6 +160,15 @@ class VTBTransaction(Base):
     debit = Column(Float)
     credit = Column(Float)
     text = Column(String)
+    __table_args__ = (
+        UniqueConstraint(
+            'bank',
+            'trans_datetime',
+            'card_sum',
+            'debit',
+            'credit'
+        ),
+    )
 
     def __init__(self, bank, trans_datetime, transfer_datetime, card_sum, debit, credit, text):
         self.bank = bank
@@ -194,6 +180,6 @@ class VTBTransaction(Base):
         self.text = text
 
 
-Base.metadata.create_all(db)
+Base.metadata.create_all(engine)
 session = Session()
 session.commit()

@@ -43,17 +43,15 @@ def get_transactions():
 
                 transaction = {
                     'bank': 'VTB',
-                    'trans_datetime': None,
+                    'trans_datetime': datetime.strptime(
+                        ' '.join((trans_date, trans_time)),
+                        '%d.%m.%Y %H:%M:%S') if trans_date is not None else None,
                     'transfer_datetime': datetime.strptime(transfer_date, '%d.%m.%Y'),
                     'card_sum': float(card_sum.replace(' RUB', '')),
                     'debit': float(debit),
                     'credit': float(credit),
                     'text': text[1:].replace(' Спасибо, что Вы с нами! Всегда Ваш, Банк ВТБ (ПАО)', '').strip()
                 }
-
-                if trans_date is not None:
-                    transaction['trans_datetime'] = datetime.strptime(' '.join((trans_date, trans_time)),
-                                                                      '%d.%m.%Y %H:%M:%S')
 
                 transactions.append(transaction)
 

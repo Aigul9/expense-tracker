@@ -1,6 +1,8 @@
 import glob
-import pandas as pd
 from datetime import datetime
+
+import numpy as np
+import pandas as pd
 
 
 PATH = '../input/tinkoff'
@@ -11,7 +13,7 @@ def get_transactions():
     transactions = []
 
     for filename in filenames:
-        df = pd.read_excel(filename, sheet_name='Отчет по операциям', header=0)
+        df = pd.read_excel(filename, sheet_name='Отчет по операциям', header=0).replace('nan', np.nan).fillna('')
 
         for _, row in df.iterrows():
             (
@@ -25,7 +27,7 @@ def get_transactions():
             transaction = {
                 'bank': 'Tinkoff',
                 'trans_datetime': datetime.strptime(trans_datetime, '%d.%m.%Y %H:%M:%S'),
-                'transfer_datetime': None if pd.isna(transfer_datetime)
+                'transfer_datetime': None if transfer_datetime == ''
                 else datetime.strptime(transfer_datetime, '%d.%m.%Y'),
                 'pan': pan,
                 'status': status,
@@ -34,9 +36,9 @@ def get_transactions():
                 'trans_currency': trans_currency,
                 'pay_sum': pay_sum,
                 'pay_currency': pay_currency,
-                'cashback': cashback,
+                'cashback': str(cashback),
                 'category': category,
-                'mcc': mcc,
+                'mcc': str(mcc).replace('.0', ''),
                 'text': text,
                 'bonus': float(bonus),
                 'rounding': float(rounding),

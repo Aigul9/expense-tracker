@@ -1,6 +1,7 @@
 import glob
-from bs4 import BeautifulSoup
 from datetime import datetime
+
+from bs4 import BeautifulSoup
 
 
 PATH = '../input/sovcombank'

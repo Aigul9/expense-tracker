@@ -1,7 +1,8 @@
-import fitz
 import glob
 import re
 from datetime import datetime
+
+import fitz
 
 PATH = '../input/vtb'
 FILENAMES = glob.glob(PATH + '/*.pdf')

@@ -1,12 +1,13 @@
 import logging
 
-from sqlalchemy.dialects.postgresql import insert
-
 import sber
+import sberForAccount
 import sovcom
 import tinkoff
 import vtb
 from connect import session, SberTransaction, SovcomTransaction, TinkoffTransaction, VTBTransaction
+
+from sqlalchemy.dialects.postgresql import insert
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -18,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 transactions = {
     'sber': (sber.get_transactions(), SberTransaction),
+    'sberForAccount': (sberForAccount.get_transactions(), SberTransaction),
     'sovcom': (sovcom.get_transactions(), SovcomTransaction),
     'tinkoff': (tinkoff.get_transactions(), TinkoffTransaction),
     'vtb': (vtb.get_transactions(), VTBTransaction)

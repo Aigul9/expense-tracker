@@ -1,4 +1,5 @@
 from datetime import date
+
 from decouple import config
 from sqlalchemy import create_engine, Date, Float, Integer, MetaData, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base

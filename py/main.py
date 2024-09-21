@@ -1,7 +1,6 @@
 import logging
 
 import sber
-import sberForAccount
 import sovcom
 import tinkoff
 import vtb
@@ -19,7 +18,6 @@ logger = logging.getLogger(__name__)
 
 transactions = {
     'sber': (sber.get_transactions(), SberTransaction),
-    'sberForAccount': (sberForAccount.get_transactions(), SberTransaction),
     'sovcom': (sovcom.get_transactions(), SovcomTransaction),
     'tinkoff': (tinkoff.get_transactions(), TinkoffTransaction),
     'vtb': (vtb.get_transactions(), VTBTransaction)

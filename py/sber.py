@@ -17,35 +17,29 @@ def get_transactions():
         file = fitz.open(filename)
         pat_date = re.compile(r'(\d{2}.\d{2}.\d{4})')
         pat_time = re.compile(r'(\d{2}:\d{2})')
-        num_fields = 7
+        num_fields = 8
 
         for page in file:
             rows = page.get_text().split('\n')
-            is_debit_card = 1 if 'дебетовой карты' in ''.join(rows).lower() else 0
-            i = 0
+            i = 11
 
             while i < len(rows) - 1:
+
+                if rows[i] == 'Продолжение на следующей странице'\
+                        or 'Дергунова К. А.' in rows[i]:
+                    break
+
                 date = rows[i][:10]
                 time = rows[i + 1][:5]
 
                 if pat_date.search(date) and pat_time.search(time):
-                    trans_date, trans_time, transfer_date, auth_code, category, text = rows[i:i + num_fields - 1]
+                    trans_date, trans_time, auth_code, category, trans_sum_str, _, transfer_date, text = rows[i:i + num_fields]
 
-                    try:
-                        trans_sum_str = unidecode(rows[i + num_fields - 1]).replace(' ', '').replace(',', '.')
-                        trans_sum = float(trans_sum_str)
-                    except ValueError:
-                        text += rows[i + num_fields - 1]
-                        trans_sum_str = unidecode(rows[i + num_fields]).replace(' ', '').replace(',', '.')
-                        trans_sum = float(trans_sum_str)
-                        i += 1
+                    trans_sum_str = unidecode(trans_sum_str).replace(' ', '').replace(',', '.')
+                    trans_sum = float(trans_sum_str)
 
-                    if is_debit_card:
-                        debit = trans_sum if trans_sum_str[0] == '+' else 0
-                        credit = trans_sum if trans_sum_str[0] != '+' else 0
-                    else:
-                        debit = trans_sum if trans_sum_str[0] != '-' else 0
-                        credit = abs(trans_sum) if trans_sum_str[0] == '-' else 0
+                    debit = trans_sum if trans_sum_str[0] == '+' else 0
+                    credit = trans_sum if trans_sum_str[0] != '+' else 0
 
                     transaction = {
                         'bank': 'Sber',
@@ -53,16 +47,17 @@ def get_transactions():
                                                             '%d.%m.%Y %H:%M'),
                         'transfer_datetime': datetime.strptime(transfer_date, '%d.%m.%Y'),
                         'auth_code': auth_code,
-                        'category': category if is_debit_card else text,
+                        'category': category,
                         'debit': debit,
                         'credit': credit,
-                        'text': text if is_debit_card else category
+                        'text': text
                     }
 
                     transactions.append(transaction)
                     i += num_fields
-
                 else:
+                    if len(transactions) != 0:
+                        transactions[-1]['text'] += ' ' + rows[i]
                     i += 1
 
     return transactions

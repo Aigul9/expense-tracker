@@ -1,30 +1,32 @@
 --v_sber
+CREATE OR REPLACE VIEW v_sber AS
 SELECT sber.bank,
     sber.trans_datetime,
     sber.debit,
     sber.credit,
     sber.category,
         CASE
-            WHEN (sber.category::text = ANY (ARRAY['Перевод с карты'::character varying::text, 'Перевод на карту'::character varying::text, 'Прочие операции'::character varying::text])) AND (sber.text::text ~~ '%2222%'::text OR sber.text::text ~~ '%1111%'::text OR sber.text::text ~~ '%3333%'::text) AND NOT sber.text::text ~~ '%перация%по%карте%2222%'::text AND NOT sber.text::text ~~ '%перация%по%карте%1111%'::text AND NOT sber.text::text ~~ '%перация%по%счету%3333%'::text THEN 'Перевод себе'::text
-            WHEN sber.text::text ~~ '%1111%перация%по%карте%2222%'::text THEN 'Перевод себе'::text
-            WHEN sber.text::text ~~ '%3333%перация%по%карте%2222%'::text THEN 'Перевод себе'::text
-            WHEN sber.text::text ~~ '%2222%перация%по%карте%1111%'::text THEN 'Перевод себе'::text
-            WHEN sber.text::text ~~ '%3333%перация%по%карте%1111%'::text THEN 'Перевод себе'::text
-            WHEN sber.text::text ~~ '%2222%перация%по%карте%3333%'::text THEN 'Перевод себе'::text
-            WHEN sber.text::text ~~ '%1111%перация%по%карте%3333%'::text THEN 'Перевод себе'::text
-            WHEN lower(sber.text::text) ~~ '%vklad%'::text THEN 'Перевод себе'::text
-            WHEN sber.category::text = 'Прочие операции'::text AND (lower(sber.text::text) ~~ '%тиньк%'::text OR lower(sber.text::text) ~~ '%tink%'::text) AND (EXISTS ( SELECT 1
+            WHEN (sber.category = ANY (ARRAY['Перевод с карты', 'Перевод на карту', 'Прочие операции'])) AND (sber.text ~~ '%2222%' OR sber.text ~~ '%1111%' OR sber.text ~~ '%3333%') AND NOT sber.text ~~ '%перация%по%карте%2222%' AND NOT sber.text ~~ '%перация%по%карте%1111%' AND NOT sber.text ~~ '%перация%по%счету%3333%' THEN 'Перевод себе'
+            WHEN sber.text ~~ '%1111%перация%по%карте%2222%' THEN 'Перевод себе'
+            WHEN sber.text ~~ '%3333%перация%по%карте%2222%' THEN 'Перевод себе'
+            WHEN sber.text ~~ '%2222%перация%по%карте%1111%' THEN 'Перевод себе'
+            WHEN sber.text ~~ '%3333%перация%по%карте%1111%' THEN 'Перевод себе'
+            WHEN sber.text ~~ '%2222%перация%по%счету%3333%' THEN 'Перевод себе'
+            WHEN sber.text ~~ '%1111%перация%по%счету%3333%' THEN 'Перевод себе'
+            WHEN lower(sber.text::text) ~~ '%vklad%' AND credit in (99999) THEN 'Расход'
+            WHEN lower(sber.text) ~~ '%vklad%' THEN 'Перевод себе'
+            WHEN sber.category = 'Прочие операции' AND (lower(sber.text) ~~ '%тиньк%' OR lower(sber.text) ~~ '%tink%' OR lower(sber.text) ~~ '%т-банк%') AND (EXISTS ( SELECT 1
                FROM tinkoff
-              WHERE date(sber.trans_datetime) = date(tinkoff.trans_datetime) AND (sber.credit > 0::double precision AND sber.credit = tinkoff.debit AND (tinkoff.category::text = ANY (ARRAY['Переводы'::character varying::text, 'Пополнения'::character varying::text])) OR sber.debit > 0::double precision AND sber.debit = tinkoff.credit AND tinkoff.category::text = 'Переводы'::text))) THEN 'Перевод себе'::text
-            WHEN sber.category::text = 'Прочие операции'::text AND (lower(sber.text::text) ~~ '%совком%'::text OR lower(sber.text::text) ~~ '%sovcom%'::text) AND (EXISTS ( SELECT 1
+              WHERE date(sber.trans_datetime) = date(tinkoff.trans_datetime) AND (sber.credit > 0 AND sber.credit = tinkoff.debit AND (tinkoff.category = ANY (ARRAY['Переводы', 'Пополнения'])) OR sber.debit > 0 AND sber.debit = tinkoff.credit AND tinkoff.category = 'Переводы'))) THEN 'Перевод себе'
+            WHEN sber.category = 'Прочие операции' AND (lower(sber.text) ~~ '%совком%' OR lower(sber.text) ~~ '%coвком%' OR lower(sber.text) ~~ '%sovcom%') AND (EXISTS ( SELECT 1
                FROM sovcom
-              WHERE date(sber.trans_datetime) = date(sovcom.trans_datetime) AND (sber.credit > 0::double precision AND sber.credit = sovcom.debit OR sber.debit > 0::double precision AND sber.debit = sovcom.credit) AND sovcom.category::text = 'Переводы'::text)) THEN 'Перевод себе'::text
-            WHEN sber.category::text = 'Прочие операции'::text AND (lower(sber.text::text) ~~ '%втб%'::text OR lower(sber.text::text) ~~ '%vtb%'::text OR lower(sber.text::text) ~~ '%vb24%'::text) AND (EXISTS ( SELECT 1
+              WHERE date(sber.trans_datetime) = date(sovcom.trans_datetime) AND (sber.credit > 0 AND sber.credit = sovcom.debit OR sber.debit > 0 AND sber.debit = sovcom.credit) AND sovcom.category = 'Переводы')) THEN 'Перевод себе'
+            WHEN sber.category = 'Прочие операции' AND (lower(sber.text) ~~ '%втб%' OR lower(sber.text) ~~ '%vtb%' OR lower(sber.text) ~~ '%vb24%') AND (EXISTS ( SELECT 1
                FROM vtb
-              WHERE date(sber.trans_datetime) = date(vtb.trans_datetime) AND (sber.credit > 0::double precision AND sber.credit = vtb.debit OR sber.debit > 0::double precision AND sber.debit = vtb.credit))) THEN 'Перевод себе'::text
-            WHEN sber.debit > 0::double precision THEN 'Поступление'::text
-            WHEN sber.credit > 0::double precision THEN 'Расход'::text
-            ELSE NULL::text
+              WHERE date(sber.trans_datetime) = date(vtb.trans_datetime) AND (sber.credit > 0 AND sber.credit = vtb.debit OR sber.debit > 0 AND sber.debit = vtb.credit))) THEN 'Перевод себе'
+            WHEN sber.debit > 0 THEN 'Поступление'
+            WHEN sber.credit > 0 THEN 'Расход'
+            ELSE NULL
         END AS trans_type,
     sber.text,
     sber.trans_id
@@ -32,21 +34,22 @@ FROM sber;
 
 
 --v_sovcom
+CREATE OR REPLACE VIEW v_sovcom AS
 SELECT sovcom.bank,
     sovcom.trans_datetime,
     sovcom.debit,
     sovcom.credit,
     sovcom.category,
         CASE
-            WHEN sovcom.category::text = 'Переводы'::text AND sovcom.text::text ~~ 'Зачисление перевода денежных средств%9999999999%'::text THEN 'Перевод себе'::text
-            WHEN sovcom.category::text = 'Переводы'::text AND sovcom.text::text ~~ 'Перевод согласно распоряжения%'::text AND ((EXISTS ( SELECT 1
+            WHEN sovcom.category = 'Переводы' AND sovcom.text ~~ 'Зачисление перевода денежных средств%9999999999%' THEN 'Перевод себе'
+            WHEN sovcom.category = 'Переводы' AND sovcom.text ~~ 'Перевод согласно распоряжения%' AND ((EXISTS ( SELECT 1
                FROM sber
-              WHERE date(sovcom.trans_datetime) = date(sber.trans_datetime) AND sovcom.credit = sber.debit AND (sber.category::text = ANY (ARRAY['Переводы на карту'::character varying::text, 'Прочие операции'::character varying::text])))) OR (EXISTS ( SELECT 1
+              WHERE date(sovcom.trans_datetime) = date(sber.trans_datetime) AND sovcom.credit = sber.debit AND (sber.category = ANY (ARRAY['Переводы на карту', 'Прочие операции'])))) OR (EXISTS ( SELECT 1
                FROM tinkoff
-              WHERE date(sovcom.trans_datetime) = date(tinkoff.trans_datetime) AND sovcom.credit = tinkoff.debit AND (tinkoff.category::text = ANY (ARRAY['Переводы'::character varying::text, 'Пополнения'::character varying::text]))))) THEN 'Перевод себе'::text
-            WHEN sovcom.debit > 0::double precision THEN 'Поступление'::text
-            WHEN sovcom.credit > 0::double precision THEN 'Расход'::text
-            ELSE NULL::text
+              WHERE date(sovcom.trans_datetime) = date(tinkoff.trans_datetime) AND sovcom.credit = tinkoff.debit AND (tinkoff.category = ANY (ARRAY['Переводы', 'Пополнения']))))) THEN 'Перевод себе'
+            WHEN sovcom.debit > 0 THEN 'Поступление'
+            WHEN sovcom.credit > 0 THEN 'Расход'
+            ELSE NULL
         END AS trans_type,
     sovcom.text,
     sovcom.trans_id
@@ -54,17 +57,18 @@ FROM sovcom;
 
 
 --v_tinkoff
+CREATE OR REPLACE VIEW v_tinkoff AS
 SELECT tinkoff.bank,
     tinkoff.trans_datetime,
     tinkoff.debit,
     tinkoff.credit,
     tinkoff.category,
         CASE
-            WHEN tinkoff.status::text <> 'OK'::text THEN 'Failed'::text
-            WHEN (tinkoff.category::text = ANY (ARRAY['Переводы'::character varying::text, 'Пополнения'::character varying::text])) AND (tinkoff.text::text = ANY (ARRAY['Перевод между счетами'::character varying::text, 'Имя Ф.'::character varying::text])) THEN 'Перевод себе'::text
-            WHEN tinkoff.debit > 0::double precision THEN 'Поступление'::text
-            WHEN tinkoff.credit > 0::double precision THEN 'Расход'::text
-            ELSE NULL::text
+            WHEN tinkoff.status <> 'OK' THEN 'Failed'
+            WHEN (tinkoff.category = ANY (ARRAY['Переводы', 'Пополнения'])) AND (tinkoff.text = ANY (ARRAY['Перевод между счетами', 'Имя Ф.'])) THEN 'Перевод себе'
+            WHEN tinkoff.debit > 0 THEN 'Поступление'
+            WHEN tinkoff.credit > 0 THEN 'Расход'
+            ELSE NULL
         END AS trans_type,
     tinkoff.text,
     tinkoff.trans_id
@@ -72,15 +76,16 @@ FROM tinkoff;
 
 
 --v_vtb
+CREATE OR REPLACE VIEW v_vtb AS
 SELECT vtb.bank,
     vtb.trans_datetime,
     vtb.debit,
     vtb.credit,
     vtb.category,
         CASE
-            WHEN vtb.debit > 0::double precision THEN 'Поступление'::text
-            WHEN vtb.credit > 0::double precision THEN 'Расход'::text
-            ELSE NULL::text
+            WHEN vtb.debit > 0 THEN 'Поступление'
+            WHEN vtb.credit > 0 THEN 'Расход'
+            ELSE NULL
         END AS trans_type,
     vtb.text,
     vtb.trans_id
@@ -88,6 +93,7 @@ FROM vtb;
 
 
 --v_transactions
+CREATE OR REPLACE VIEW v_transactions AS
 SELECT v_sber.bank,
     v_sber.trans_datetime,
     v_sber.debit,

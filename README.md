@@ -27,4 +27,23 @@
 3. Выполнить в терминале команду ```docker compose up```
 4. Запустить ```main.py```
 
+## Пример заполнения файла .env:
+```
+# postgres
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=bank_accounts
+POSTGRES_HOST=host.docker.internal
+POSTGRES_PORT=5434
+POSTGRES_SCHEMA=banks
+
+# pgadmin
+PGADMIN_EMAIL=pgadmin4@pgadmin.org
+PGADMIN_PASSWORD=admin
+PGADMIN_PORT=5051
+
+# metabase
+METABASE_PORT=3001
+```
+
 Теперь можно создавать свои чарты и анализировать доходы и расходы.

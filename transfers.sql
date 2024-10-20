@@ -1,6 +1,7 @@
 --v_sber
 CREATE OR REPLACE VIEW v_sber AS
 SELECT sber.bank,
+    sber.trans_id,
     sber.trans_datetime,
     sber.debit,
     sber.credit,
@@ -29,13 +30,14 @@ SELECT sber.bank,
             ELSE NULL
         END AS trans_type,
     sber.text,
-    sber.trans_id
+    sber.load_date
 FROM sber;
 
 
 --v_sovcom
 CREATE OR REPLACE VIEW v_sovcom AS
 SELECT sovcom.bank,
+    sovcom.trans_id,
     sovcom.trans_datetime,
     sovcom.debit,
     sovcom.credit,
@@ -52,13 +54,14 @@ SELECT sovcom.bank,
             ELSE NULL
         END AS trans_type,
     sovcom.text,
-    sovcom.trans_id
+    sovcom.load_date
 FROM sovcom;
 
 
 --v_tinkoff
 CREATE OR REPLACE VIEW v_tinkoff AS
 SELECT tinkoff.bank,
+    tinkoff.trans_id,
     tinkoff.trans_datetime,
     tinkoff.debit,
     tinkoff.credit,
@@ -71,13 +74,14 @@ SELECT tinkoff.bank,
             ELSE NULL
         END AS trans_type,
     tinkoff.text,
-    tinkoff.trans_id
+    tinkoff.load_date
 FROM tinkoff;
 
 
 --v_vtb
 CREATE OR REPLACE VIEW v_vtb AS
 SELECT vtb.bank,
+    vtb.trans_id,
     vtb.trans_datetime,
     vtb.debit,
     vtb.credit,
@@ -88,7 +92,7 @@ SELECT vtb.bank,
             ELSE NULL
         END AS trans_type,
     vtb.text,
-    vtb.trans_id
+    null::date as load_date
 FROM vtb;
 
 

@@ -1,7 +1,7 @@
 import glob
 from datetime import datetime
 
-import numpy as np
+import numpy as np  # numpy==1.26.4; 2.0 errors
 import pandas as pd
 
 

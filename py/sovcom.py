@@ -1,36 +1,60 @@
 import glob
+import re
 from datetime import datetime
+from unidecode import unidecode
 
-from bs4 import BeautifulSoup
+import fitz
 
 
 PATH = '../input/sovcombank'
-FILENAMES = glob.glob(PATH + '/*.html')
+FILENAMES = glob.glob(PATH + '/*.pdf')
 
 
 def get_transactions():
     transactions = []
 
     for filename in FILENAMES:
+        file = fitz.open(filename)
+        pat_date = re.compile(r'(\d{2}\.\d{2}\.\d{2})')
+        num_fields = 6
 
-        with open(filename, 'r', encoding='UTF-8') as file:
-            soup = BeautifulSoup(file, 'html.parser')
-            table = soup.find_all('table')[1]
-            trs = table.find_all('tr')[1:]
+        for page in file:
+            rows = page.get_text().split('\n')
+            i = 0  # first table row id
 
-            for tr in trs:
-                tds = tr.find_all('td')
-                transaction = {
-                    'bank': 'Sovcom',
-                    'trans_datetime': datetime.strptime(tds[0].find('p').get_text(), '%d.%m.%y'),
-                    'account': tds[1].find('p').get_text(),
-                    'income_balance': float(tds[2].find('p').get_text().replace(',', '')),
-                    'debit': float(tds[4].find('p').get_text().replace(',', '')),
-                    'credit': float(tds[3].find('p').get_text().replace(',', '')),
-                    'text': tds[5].find('p').get_text()
-                }
+            while i < len(rows) - 1:
 
-                transactions.append(transaction)
+                date = rows[i][:8]
+
+                if pat_date.search(date):
+                    trans_date, account, income_balance, debit, credit, text = rows[i:i + num_fields]
+                    print(rows[i:i + num_fields])
+
+                    income_balance = unidecode(income_balance).replace(',', '')
+                    income_balance = float(income_balance)
+
+                    debit = unidecode(debit).replace(',', '')
+                    debit = float(debit)
+
+                    credit = unidecode(credit).replace(',', '')
+                    credit = float(credit)
+
+                    transaction = {
+                        'bank': 'Sovcom',
+                        'trans_datetime': datetime.strptime(trans_date, '%d.%m.%y'),
+                        'account': account,
+                        'income_balance': income_balance,
+                        'debit': credit,
+                        'credit': debit,
+                        'text': text
+                    }
+
+                    transactions.append(transaction)
+                    i += num_fields
+                else:
+                    if len(transactions) != 0:
+                        transactions[-1]['text'] += ' ' + rows[i]
+                    i += 1
 
     return transactions
 

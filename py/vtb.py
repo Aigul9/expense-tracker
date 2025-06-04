@@ -13,7 +13,7 @@ def get_transactions():
 
     for filename in FILENAMES:
         file = fitz.open(filename)
-        pat_date = re.compile(r'(\d{2}.\d{2}.\d{4})')
+        pat_date = re.compile(r'(\d{2}\.\d{2}\.\d{4})')
         pat_time = re.compile(r'(\d{2}:\d{2}:\d{2})')
         pat_sum = re.compile(r'(\d+\sRUB)')
         num_fields = 7

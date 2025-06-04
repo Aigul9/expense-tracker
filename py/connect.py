@@ -60,6 +60,41 @@ class SberTransaction(Base):
         self.text = text
 
 
+class SberAccountTransaction(Base):
+    __tablename__ = 'sber_account'
+    trans_id = Column(Integer, primary_key=True)
+    bank = Column(String)
+    trans_datetime = Column(DateTime)
+    category = Column(String)
+    account = Column(String)
+    income_balance = Column(Float)
+    debit = Column(Float)
+    credit = Column(Float)
+    text = Column(String)
+    load_date = Column(Date, default=date.today())
+    __table_args__ = (
+        UniqueConstraint(
+            'bank',
+            'trans_datetime',
+            'category',
+            'account',
+            'income_balance',
+            'debit',
+            'credit'
+        ),
+    )
+
+    def __init__(self, bank, trans_datetime, category, account, income_balance, debit, credit, text):
+        self.bank = bank
+        self.trans_datetime = trans_datetime
+        self.category = category
+        self.account = account
+        self.income_balance = income_balance
+        self.debit = debit
+        self.credit = credit
+        self.text = text
+
+
 class SovcomTransaction(Base):
     __tablename__ = 'sovcom'
     trans_id = Column(Integer, primary_key=True)

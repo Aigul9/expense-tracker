@@ -26,7 +26,8 @@ def get_transactions():
             while i < len(rows) - 1:
 
                 if rows[i] == 'Продолжение на следующей странице'\
-                        or 'Дергунова К. А.' in rows[i]:
+                        or 'Дергунова К. А.' in rows[i]\
+                        or 'Дата формирования' in rows[i]:
                     break
 
                 date = rows[i][:10]

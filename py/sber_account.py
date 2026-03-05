@@ -24,8 +24,6 @@ def get_transactions():
 
             while i < len(rows) - 1:
 
-                print(i)
-
                 if rows[i] == 'Продолжение на следующей странице'\
                         or 'Дергунова К. А.' in rows[i]:
                     break
@@ -36,15 +34,15 @@ def get_transactions():
                     trans_date, category, account, text, trans_sum_str, income_balance_str = rows[i:i + num_fields]
                     print(rows[i:i + num_fields])
                     trans_sum_str = unidecode(trans_sum_str).replace(' ', '').replace(',', '.')
+                    income_balance_str = unidecode(income_balance_str).replace(' ', '').replace(',', '.')
 
                     try:
                         trans_sum = float(trans_sum_str)
+                        income_balance = float(income_balance_str)
                     except ValueError:
+                        print('skipped')
                         i += 1
                         continue
-
-                    income_balance_str = unidecode(income_balance_str).replace(' ', '').replace(',', '.')
-                    income_balance = float(income_balance_str)
 
                     debit = trans_sum if trans_sum_str[0] == '+' else 0
                     credit = trans_sum if trans_sum_str[0] != '+' else 0

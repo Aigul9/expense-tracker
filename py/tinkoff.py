@@ -9,11 +9,18 @@ PATH = '../input/tinkoff'
 
 
 def get_transactions():
-    filenames = glob.glob(PATH + '/*.xls')
+    filenames = glob.glob(PATH + '/*.xlsx')
+    # sheet_name = 'Отчет по операциям'
+    sheet_name = 'Sheet1'
     transactions = []
 
     for filename in filenames:
-        df = pd.read_excel(filename, sheet_name='Отчет по операциям', header=0).replace('nan', np.nan).fillna('')
+        df = (
+            pd.read_excel(filename, sheet_name=sheet_name, header=0)
+            .replace('nan', np.nan)
+            .replace({pd.NaT: None})
+            .fillna('')
+        )
 
         for _, row in df.iterrows():
             (
@@ -26,9 +33,9 @@ def get_transactions():
 
             transaction = {
                 'bank': 'Tinkoff',
-                'trans_datetime': datetime.strptime(trans_datetime, '%d.%m.%Y %H:%M:%S'),
+                'trans_datetime': trans_datetime,
                 'transfer_datetime': None if transfer_datetime == ''
-                else datetime.strptime(transfer_datetime, '%d.%m.%Y'),
+                else transfer_datetime,
                 'pan': pan,
                 'status': status,
                 'debit': trans_sum if trans_sum > 0 else 0,

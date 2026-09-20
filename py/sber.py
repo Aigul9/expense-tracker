@@ -23,7 +23,17 @@ def get_transactions():
             rows = page.get_text().split('\n')
             i = 11
 
+            is_page_started = False
+
             while i < len(rows) - 1:
+
+                if is_page_started is False:
+
+                    if rows[i] == 'В валюте счёта':
+                        is_page_started = True
+
+                    i += 1
+                    continue
 
                 if rows[i] == 'Продолжение на следующей странице'\
                         or 'Дергунова К. А.' in rows[i]\
@@ -34,7 +44,7 @@ def get_transactions():
                 time = rows[i + 1][:5]
 
                 if pat_date.search(date) and pat_time.search(time):
-                    trans_date, trans_time, auth_code, category, trans_sum_str, _, transfer_date, text = rows[i:i + num_fields]
+                    trans_date, trans_time, category, trans_sum_str, _, transfer_date, auth_code, text = rows[i:i + num_fields]
 
                     trans_sum_str = unidecode(trans_sum_str).replace(' ', '').replace(',', '.')
                     trans_sum = float(trans_sum_str)

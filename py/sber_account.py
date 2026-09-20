@@ -31,8 +31,14 @@ def get_transactions():
                 date = rows[i][:10]
 
                 if pat_date.search(date):
-                    trans_date, category, account, text, trans_sum_str, income_balance_str = rows[i:i + num_fields]
-                    print(rows[i:i + num_fields])
+                    try:
+                        trans_date, category, account, text, trans_sum_str, income_balance_str = rows[i:i + num_fields]
+                        print(rows[i:i + num_fields])
+                    except ValueError:
+                        print(rows[i])
+                        i += 1
+                        continue
+
                     trans_sum_str = unidecode(trans_sum_str).replace(' ', '').replace(',', '.')
                     income_balance_str = unidecode(income_balance_str).replace(' ', '').replace(',', '.')
 
